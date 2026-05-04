@@ -2,36 +2,106 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness App</title>
-    
-    <!-- React & Babel laden -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Web-App Optimierung für Android -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1f2937">
-    <link rel="manifest" href="manifest.json">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background-color: #f9fafb; overflow: hidden; }
+        #root { height: 100%; }
+    </style>
 </head>
-<body style="margin:0; background:#f9fafb; font-family: system-ui, sans-serif;">
+<body>
     <div id="root"></div>
 
-    <!-- Hier wird deine App.js geladen -->
-    <script type="text/babel" src="App.js"></script>
-
-    <!-- Start-Logik: Wartet kurz, bis der Code aus App.js bereit ist -->
     <script type="text/babel">
-        function initApp() {
-            if (typeof App !== 'undefined') {
-                const root = ReactDOM.createRoot(document.getElementById('root'));
-                root.render(<App />);
-            } else {
-                setTimeout(initApp, 50);
-            }
-        }
-        initApp();
-    </script>
-</body>
-</html>
+        // WICHTIG: Hooks direkt aus React holen (da kein Build-Tool)
+        const { useState, useEffect, useRef } = React;
+
+        const DAYS = [
+            {
+                day: "Mo", full: "Montag", focus: "Unterer Rücken & Core", icon: "🦴", duration: 30,
+                color: "#3b82f6", light: "#eff6ff", border: "#bfdbfe",
+                warmup: ["3 Min Rudermaschine (leicht)", "Schulterkreisen 10× vor/zurück", "Hüftkreisen 10× je Seite"],
+                exercises: [
+                    { name: "Katze-Kuh", sets: 3, reps: "10 Wdh", rest: 30, weight: "–" },
+                    { name: "Bird-Dog", sets: 3, reps: "8 je Seite", rest: 45, weight: "–" },
+                    { name: "Glute Bridge", sets: 3, reps: "12 Wdh", rest: 45, weight: "–" },
+                    { name: "Dead Bug", sets: 3, reps: "6 je Seite", rest: 45, weight: "–" },
+                    { name: "Superman", sets: 3, reps: "10 Wdh", rest: 45, weight: "–" },
+                    { name: "Seitplanke (mod.)", sets: 2, reps: "20 Sek/Seite", rest: 30, weight: "–" },
+                ],
+                cooldown: "Hüftbeuger · Piriformis · Kindpose – je 30 Sek"
+            },
+            {
+                day: "Di", full: "Dienstag", focus: "Kardio – Rudermaschine", icon: "🚣", duration: 30,
+                color: "#22c55e", light: "#f0fdf4", border: "#bbf7d0",
+                warmup: ["5 Min Rudern sehr leicht", "Armkreisen, Oberkörper-Rotation"],
+                exercises: [
+                    { name: "Gleichmäßiges Rudern", sets: 1, reps: "15 Min", rest: 60, weight: "22 Züge/Min" },
+                    { name: "Intervall: schnell", sets: 3, reps: "1 Min", rest: 60, weight: "Kraftvoll" },
+                    { name: "Intervall: locker", sets: 3, reps: "1 Min", rest: 0, weight: "18 Züge/Min" },
+                ],
+                cooldown: "5 Min Gehen · Waden- und Oberschenkeldehnung"
+            },
+            {
+                day: "Mi", full: "Mittwoch", focus: "Kraft – Oberkörper", icon: "💪", duration: 35,
+                color: "#a855f7", light: "#faf5ff", border: "#e9d5ff",
+                warmup: ["3 Min Rudermaschine (leicht)", "Armkreisen, Schulterrotation"],
+                exercises: [
+                    { name: "Bizeps-Curls", sets: 3, reps: "12 Wdh", rest: 60, weight: "2–5 kg" },
+                    { name: "Schulterpress", sets: 3, reps: "10 Wdh", rest: 60, weight: "2–5 kg" },
+                    { name: "Schulter seitlich", sets: 3, reps: "12 Wdh", rest: 60, weight: "1–3 kg" },
+                    { name: "Trizeps-Kickback", sets: 3, reps: "12 je Arm", rest: 60, weight: "2–4 kg" },
+                    { name: "Bent-Over Row", sets: 3, reps: "10 Wdh", rest: 60, weight: "3–5 kg" },
+                    { name: "Chest Press", sets: 3, reps: "12 Wdh", rest: 60, weight: "3–5 kg" },
+                ],
+                cooldown: "Brust · Schulter · Trizeps – je 30 Sek"
+            },
+            {
+                day: "Do", full: "Donnerstag", focus: "Aktive Erholung & Mobilität", icon: "🧘", duration: 20,
+                color: "#eab308", light: "#fefce8", border: "#fef08a",
+                warmup: [],
+                exercises: [
+                    { name: "Yoga-Flow", sets: 1, reps: "10 Min", rest: 0, weight: "–" },
+                    { name: "Hüftbeuger-Dehnung", sets: 2, reps: "45 Sek/Seite", rest: 30, weight: "–" },
+                    { name: "LWS-Rotation", sets: 1, reps: "10× je Seite", rest: 30, weight: "–" },
+                    { name: "BWS-Mobilisation", sets: 1, reps: "10 Wdh", rest: 0, weight: "–" },
+                ],
+                cooldown: "4-7-8 Atemübung · 3 Runden"
+            },
+            {
+                day: "Fr", full: "Freitag", focus: "Kraft – Unterkörper", icon: "🦵", duration: 35,
+                color: "#ef4444", light: "#fef2f2", border: "#fecaca",
+                warmup: ["3 Min Rudermaschine", "Beinkreisen, Knieheben auf der Stelle"],
+                exercises: [
+                    { name: "Stuhl-Squat", sets: 3, reps: "12 Wdh", rest: 60, weight: "ohne/2–3 kg" },
+                    { name: "Ausfallschritte", sets: 3, reps: "8 je Seite", rest: 60, weight: "ohne/2–3 kg" },
+                    { name: "Seitl. Ausfallschritt", sets: 3, reps: "8 je Seite", rest: 60, weight: "ohne/1–2 kg" },
+                    { name: "Einbeinige Bridge", sets: 3, reps: "10 je Seite", rest: 45, weight: "–" },
+                    { name: "Wadenheben", sets: 3, reps: "15 Wdh", rest: 45, weight: "ohne/3–5 kg" },
+                ],
+                cooldown: "Quadrizeps · Hamstring · Wade · Hüfte – je 30 Sek"
+            },
+            {
+                day: "Sa", full: "Samstag", focus: "Kardio + Rücken-Kombi", icon: "🔥", duration: 30,
+                color: "#f97316", light: "#fff7ed", border: "#fed7aa",
+                warmup: ["5 Min Rudern leicht"],
+                exercises: [
+                    { name: "Rudern Ausdauer", sets: 1, reps: "20 Min", rest: 0, weight: "Technik-Fokus" },
+                    { name: "Bird-Dog (Pause)", sets: 1, reps: "8 je Seite", rest: 30, weight: "–" },
+                ],
+                cooldown: "LWS · Piriformis · Oberschenkel – je 30 Sek"
+            },
+            {
+                day: "So", full: "Sonntag", focus: "Ruhetag", icon: "😴", duration: 0,
+                color: "#6b7280", light: "#f9fafb", border: "#e5e7eb",
+                warmup: [],
+                exercises: [{ name: "Optional: Stretching", sets: 1, reps: "10 Min", rest: 0, weight: "–" }],
+                cooldown: ""
+            },
+        ];
+
+        const DETAILS = {
+            "Katze-Kuh": { pos: "Vierfüßlerstand: Hände unter Schultern, Knie unter Hüften.", exec: "Einatmen → Bauch sinkt, Kopf & Steißbein heben (Kuh). Ausatmen → Rücken rundet
