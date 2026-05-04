@@ -4,34 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fitness App</title>
-    <!-- React & Babel -->
+    
+    <!-- React & Babel laden -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#3b82f6">
+    <!-- Web-App Optimierung für Android -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1f2937">
+    <link rel="manifest" href="manifest.json">
 </head>
 <body style="margin:0; background:#f9fafb; font-family: system-ui, sans-serif;">
     <div id="root"></div>
 
-    <!-- Dein Training-Code -->
+    <!-- Hier wird deine App.js geladen -->
     <script type="text/babel" src="App.js"></script>
 
-    <!-- Start-Logik -->
+    <!-- Start-Logik: Wartet kurz, bis der Code aus App.js bereit ist -->
     <script type="text/babel">
-        function renderApp() {
+        function initApp() {
             if (typeof App !== 'undefined') {
                 const root = ReactDOM.createRoot(document.getElementById('root'));
                 root.render(<App />);
             } else {
-                // Falls App.js noch lädt, kurz warten
-                setTimeout(renderApp, 50);
+                setTimeout(initApp, 50);
             }
         }
-        renderApp();
+        initApp();
     </script>
 </body>
 </html>
