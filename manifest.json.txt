@@ -1,0 +1,15 @@
+{
+  short_name Fitness,
+  name Fitness Training 50+,
+  display standalone,
+  start_url ,
+  background_color #1f2937,
+  theme_color #3b82f6,
+  icons [
+    {
+      src httpscdn-icons-png.flaticon.com51230433043206.png,
+      type imagepng,
+      sizes 512x512
+    }
+  ]
+}
